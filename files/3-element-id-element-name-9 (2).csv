@@ -1,0 +1,18 @@
+﻿element_id,element_name,element_type,lock_keyword,user_assigned,comment_text,text_below,parent
+START_001,Start,start,,,,,
+PROC_001,Wprowadzenie danych faktury,user_action_process,lock_noterasable,Operator,,,,
+DEC_001,Czy approver jest Senior Managerem?,system_decision,,,,,
+ACT_001,Dodanie dodatkowego approvera (Senior Manager),system_action,,,System dopisuje dodatkowego approvera,,
+PROC_002,Akceptacja przez Approvera,user_action_process,lock_noteditable,Approver,,,,
+ACT_002,Logowanie transakcji po akcji Approvera,system_action,,,System zapisuje log transakcji po akceptacji Approvera,,
+PROC_003,Akceptacja Administratora,user_action_process,lock_noteditable,Administrator,,,,
+DEC_002,Czy approver nadal jest managerem pracownika?,system_decision,,,,,
+ACT_003,Logowanie transakcji przed zamknięciem wniosku,system_action,,,System zapisuje log transakcji przed zamknięciem wniosku,,
+PROC_004,Zamknięcie wniosku,user_action_process,lock_noteditable,System/Proces,,,,
+END_001,Koniec,end,,,,,
+START_002,Start podprocesu: przejście do rejestru firm,start,,,,,PROC_001
+ACT_004,Przejście do rejestru firm,system_action,,,"System przekierowuje użytkownika do rejestru firm",,PROC_001
+END_002,Koniec podprocesu: przejście do rejestru firm,end,,,,,PROC_001
+START_003,Start podprocesu: generowanie tabeli walut,start,,,,,PROC_001
+ACT_005,Generowanie tabeli walut,system_action,,,"System generuje tabelę walut w ramach formularza",,PROC_001
+END_003,Koniec podprocesu: generowanie tabeli walut,end,,,,,PROC_001
