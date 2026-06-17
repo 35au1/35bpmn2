@@ -1,0 +1,678 @@
+{
+  "elements": [
+    {
+      "id": 1779283128748,
+      "type": "start",
+      "x": 140,
+      "y": 80,
+      "title": "Start",
+      "expanded": false,
+      "subElements": [],
+      "minimized": false,
+      "_csvId": "START_001",
+      "_userAssigned": "",
+      "_lock": "",
+      "_parent": ""
+    },
+    {
+      "id": 1779283601121,
+      "type": "process",
+      "x": 140,
+      "y": 240,
+      "title": "Wprowadzenie danych faktury",
+      "expanded": false,
+      "subElements": [],
+      "minimized": false,
+      "_csvId": "PROC_001",
+      "_userAssigned": "Operator",
+      "_lock": "lock_noterasable",
+      "_parent": ""
+    },
+    {
+      "id": 1779283585280,
+      "type": "decision-x",
+      "x": 380,
+      "y": 387,
+      "title": "Czy approver jest Senior Managerem?",
+      "expanded": false,
+      "subElements": [],
+      "minimized": false,
+      "_csvId": "DEC_001",
+      "_userAssigned": "",
+      "_lock": "",
+      "_parent": ""
+    },
+    {
+      "id": 1779283379156,
+      "type": "system_action",
+      "x": 380,
+      "y": 533,
+      "title": "Dodanie dodatkowego approvera (Senior Manager)",
+      "expanded": false,
+      "subElements": [],
+      "minimized": false,
+      "_csvId": "ACT_001",
+      "_userAssigned": "",
+      "_lock": "",
+      "_parent": ""
+    },
+    {
+      "id": 1779283010181,
+      "type": "process",
+      "x": 140,
+      "y": 680,
+      "title": "Akceptacja przez Approvera",
+      "expanded": false,
+      "subElements": [],
+      "minimized": false,
+      "_csvId": "PROC_002",
+      "_userAssigned": "Approver",
+      "_lock": "lock_noteditable",
+      "_parent": ""
+    },
+    {
+      "id": 1779283761732,
+      "type": "system_action",
+      "x": 140,
+      "y": 840,
+      "title": "Logowanie transakcji po akcji Approvera",
+      "expanded": false,
+      "subElements": [],
+      "minimized": false,
+      "_csvId": "ACT_002",
+      "_userAssigned": "",
+      "_lock": "",
+      "_parent": ""
+    },
+    {
+      "id": 1779283710976,
+      "type": "process",
+      "x": 140,
+      "y": 1000,
+      "title": "Akceptacja Administratora",
+      "expanded": false,
+      "subElements": [],
+      "minimized": false,
+      "_csvId": "PROC_003",
+      "_userAssigned": "Administrator",
+      "_lock": "lock_noteditable",
+      "_parent": ""
+    },
+    {
+      "id": 1779283696654,
+      "type": "decision-x",
+      "x": 380,
+      "y": 1147,
+      "title": "Czy approver nadal jest managerem pracownika?",
+      "expanded": false,
+      "subElements": [],
+      "minimized": false,
+      "_csvId": "DEC_002",
+      "_userAssigned": "",
+      "_lock": "",
+      "_parent": ""
+    },
+    {
+      "id": 1779283693031,
+      "type": "system_action",
+      "x": 380,
+      "y": 1293,
+      "title": "Logowanie transakcji przed zamknięciem wniosku",
+      "expanded": false,
+      "subElements": [],
+      "minimized": false,
+      "_csvId": "ACT_003",
+      "_userAssigned": "",
+      "_lock": "",
+      "_parent": ""
+    },
+    {
+      "id": 1779283190513,
+      "type": "process",
+      "x": 140,
+      "y": 1440,
+      "title": "Zamknięcie wniosku",
+      "expanded": false,
+      "subElements": [],
+      "minimized": false,
+      "_csvId": "PROC_004",
+      "_userAssigned": "System/Proces",
+      "_lock": "lock_noteditable",
+      "_parent": ""
+    },
+    {
+      "id": 1779282945429,
+      "type": "end",
+      "x": 140,
+      "y": 1600,
+      "title": "Koniec",
+      "expanded": false,
+      "subElements": [],
+      "minimized": false,
+      "_csvId": "END_001",
+      "_userAssigned": "",
+      "_lock": "",
+      "_parent": ""
+    },
+    {
+      "id": 1779283657149,
+      "type": "start",
+      "x": 802,
+      "y": 152,
+      "title": "Przejście do rejestru firm",
+      "expanded": false,
+      "subElements": [],
+      "minimized": false,
+      "_subprocess": true,
+      "_spFlowId": "spf_1",
+      "_csvId": "START_002",
+      "_parent": "PROC_001"
+    },
+    {
+      "id": 1779283771379,
+      "type": "system_action",
+      "x": 1002,
+      "y": 152,
+      "title": "Przejście do rejestru firm",
+      "expanded": false,
+      "subElements": [],
+      "minimized": false,
+      "_subprocess": true,
+      "_spFlowId": "spf_1",
+      "_csvId": "ACT_004",
+      "_parent": "PROC_001"
+    },
+    {
+      "id": 1779283498654,
+      "type": "end",
+      "x": 1202,
+      "y": 152,
+      "title": "Przejście do rejestru firm",
+      "expanded": false,
+      "subElements": [],
+      "minimized": false,
+      "_subprocess": true,
+      "_spFlowId": "spf_1",
+      "_csvId": "END_002",
+      "_parent": "PROC_001"
+    },
+    {
+      "id": 1779282891392,
+      "type": "start",
+      "x": 802,
+      "y": 272,
+      "title": "Generowanie tabeli walut",
+      "expanded": false,
+      "subElements": [],
+      "minimized": false,
+      "_subprocess": true,
+      "_spFlowId": "spf_2",
+      "_csvId": "START_003",
+      "_parent": "PROC_001"
+    },
+    {
+      "id": 1779283523924,
+      "type": "system_action",
+      "x": 1002,
+      "y": 272,
+      "title": "Generowanie tabeli walut",
+      "expanded": false,
+      "subElements": [],
+      "minimized": false,
+      "_subprocess": true,
+      "_spFlowId": "spf_2",
+      "_csvId": "ACT_005",
+      "_parent": "PROC_001"
+    },
+    {
+      "id": 1779283780027,
+      "type": "end",
+      "x": 1202,
+      "y": 272,
+      "title": "Generowanie tabeli walut",
+      "expanded": false,
+      "subElements": [],
+      "minimized": false,
+      "_subprocess": true,
+      "_spFlowId": "spf_2",
+      "_csvId": "END_003",
+      "_parent": "PROC_001"
+    }
+  ],
+  "arrows": [
+    {
+      "id": 1779283285165,
+      "start": 1779283128748,
+      "end": 1779283601121,
+      "startDir": "bottom",
+      "endDir": "top",
+      "label": "",
+      "waypoints": [],
+      "startPortIndex": 0,
+      "endPortIndex": 0,
+      "_srcCsvId": "START_001",
+      "_isBackward": false,
+      "_srcType": "start",
+      "_trigger": "await",
+      "_button": "",
+      "_validation": ""
+    },
+    {
+      "id": 1779283537193,
+      "start": 1779283601121,
+      "end": 1779283585280,
+      "startDir": "bottom",
+      "endDir": "top",
+      "label": "Wyślij do akceptacji",
+      "waypoints": [],
+      "startPortIndex": 0,
+      "endPortIndex": 0,
+      "_srcCsvId": "PROC_001",
+      "_isBackward": false,
+      "_srcType": "user_action_process",
+      "_trigger": "button",
+      "_button": "Wyślij do akceptacji",
+      "_validation": "Approver wskazany"
+    },
+    {
+      "id": 1779283552041,
+      "start": 1779283585280,
+      "end": 1779283010181,
+      "startDir": "left",
+      "endDir": "right",
+      "label": "Tak – jest Senior Managerem",
+      "waypoints": [
+        {
+          "x": 268,
+          "y": 387
+        },
+        {
+          "x": 268,
+          "y": 652
+        }
+      ],
+      "startPortIndex": 0,
+      "endPortIndex": 0,
+      "_srcCsvId": "DEC_001",
+      "_isBackward": false,
+      "_srcType": "system_decision",
+      "_trigger": "await",
+      "_button": "",
+      "_validation": ""
+    },
+    {
+      "id": 1779283723850,
+      "start": 1779283585280,
+      "end": 1779283379156,
+      "startDir": "bottom",
+      "endDir": "top",
+      "label": "Nie – nie jest Senior Managerem",
+      "waypoints": [],
+      "startPortIndex": 0,
+      "endPortIndex": 0,
+      "_srcCsvId": "DEC_001",
+      "_isBackward": false,
+      "_srcType": "system_decision",
+      "_trigger": "await",
+      "_button": "",
+      "_validation": ""
+    },
+    {
+      "id": 1779282864598,
+      "start": 1779283379156,
+      "end": 1779283010181,
+      "startDir": "left",
+      "endDir": "right",
+      "label": "",
+      "waypoints": [
+        {
+          "x": 244,
+          "y": 533
+        },
+        {
+          "x": 244,
+          "y": 666
+        }
+      ],
+      "startPortIndex": 0,
+      "endPortIndex": 1,
+      "_srcCsvId": "ACT_001",
+      "_isBackward": false,
+      "_srcType": "system_action",
+      "_trigger": "await",
+      "_button": "",
+      "_validation": ""
+    },
+    {
+      "id": 1779283381660,
+      "start": 1779283010181,
+      "end": 1779283761732,
+      "startDir": "bottom",
+      "endDir": "top",
+      "label": "Approve",
+      "waypoints": [],
+      "startPortIndex": 0,
+      "endPortIndex": 0,
+      "_srcCsvId": "PROC_002",
+      "_isBackward": false,
+      "_srcType": "user_action_process",
+      "_trigger": "button",
+      "_button": "Approve",
+      "_validation": ""
+    },
+    {
+      "id": 1779283452519,
+      "start": 1779283761732,
+      "end": 1779283710976,
+      "startDir": "bottom",
+      "endDir": "top",
+      "label": "",
+      "waypoints": [],
+      "startPortIndex": 0,
+      "endPortIndex": 0,
+      "_srcCsvId": "ACT_002",
+      "_isBackward": false,
+      "_srcType": "system_action",
+      "_trigger": "await",
+      "_button": "",
+      "_validation": ""
+    },
+    {
+      "id": 1779283098219,
+      "start": 1779283710976,
+      "end": 1779283696654,
+      "startDir": "bottom",
+      "endDir": "top",
+      "label": "Akceptuj",
+      "waypoints": [],
+      "startPortIndex": 0,
+      "endPortIndex": 0,
+      "_srcCsvId": "PROC_003",
+      "_isBackward": false,
+      "_srcType": "user_action_process",
+      "_trigger": "button",
+      "_button": "Akceptuj",
+      "_validation": ""
+    },
+    {
+      "id": 1779283039718,
+      "start": 1779283696654,
+      "end": 1779283693031,
+      "startDir": "bottom",
+      "endDir": "top",
+      "label": "Tak – nadal jest managerem",
+      "waypoints": [],
+      "startPortIndex": 0,
+      "endPortIndex": 0,
+      "_srcCsvId": "DEC_002",
+      "_isBackward": false,
+      "_srcType": "system_decision",
+      "_trigger": "await",
+      "_button": "",
+      "_validation": ""
+    },
+    {
+      "id": 1779283059284,
+      "start": 1779283693031,
+      "end": 1779283190513,
+      "startDir": "left",
+      "endDir": "right",
+      "label": "",
+      "waypoints": [
+        {
+          "x": 220,
+          "y": 1293
+        },
+        {
+          "x": 220,
+          "y": 1440
+        }
+      ],
+      "startPortIndex": 0,
+      "endPortIndex": 0,
+      "_srcCsvId": "ACT_003",
+      "_isBackward": false,
+      "_srcType": "system_action",
+      "_trigger": "await",
+      "_button": "",
+      "_validation": ""
+    },
+    {
+      "id": 1779283769736,
+      "start": 1779283190513,
+      "end": 1779282945429,
+      "startDir": "bottom",
+      "endDir": "top",
+      "label": "",
+      "waypoints": [],
+      "startPortIndex": 0,
+      "endPortIndex": 0,
+      "_srcCsvId": "PROC_004",
+      "_isBackward": false,
+      "_srcType": "user_action_process",
+      "_trigger": "await",
+      "_button": "",
+      "_validation": ""
+    },
+    {
+      "id": 1779282881892,
+      "start": 1779283696654,
+      "end": 1779283010181,
+      "startDir": "right",
+      "endDir": "right",
+      "label": "Nie – nie jest już managerem",
+      "waypoints": [
+        {
+          "x": 550,
+          "y": 1147
+        },
+        {
+          "x": 550,
+          "y": 680
+        }
+      ],
+      "startPortIndex": 0,
+      "endPortIndex": 2,
+      "_srcCsvId": "DEC_002",
+      "_isBackward": true,
+      "_srcType": "system_decision",
+      "_trigger": "await",
+      "_button": "",
+      "_validation": ""
+    },
+    {
+      "id": 1779283453397,
+      "start": 1779283010181,
+      "end": 1779283601121,
+      "startDir": "right",
+      "endDir": "right",
+      "label": "Reject",
+      "waypoints": [
+        {
+          "x": 520,
+          "y": 694
+        },
+        {
+          "x": 520,
+          "y": 240
+        }
+      ],
+      "startPortIndex": 3,
+      "endPortIndex": 0,
+      "_srcCsvId": "PROC_002",
+      "_isBackward": true,
+      "_srcType": "user_action_process",
+      "_trigger": "button",
+      "_button": "Reject",
+      "_validation": ""
+    },
+    {
+      "id": 1779283701479,
+      "start": 1779283710976,
+      "end": 1779283010181,
+      "startDir": "right",
+      "endDir": "right",
+      "label": "Odrzuć",
+      "waypoints": [
+        {
+          "x": 520,
+          "y": 1000
+        },
+        {
+          "x": 520,
+          "y": 708
+        }
+      ],
+      "startPortIndex": 0,
+      "endPortIndex": 4,
+      "_srcCsvId": "PROC_003",
+      "_isBackward": true,
+      "_srcType": "user_action_process",
+      "_trigger": "button",
+      "_button": "Odrzuć",
+      "_validation": ""
+    },
+    {
+      "id": 1779283543157,
+      "start": 1779283657149,
+      "end": 1779283771379,
+      "startDir": "right",
+      "endDir": "left",
+      "label": "Przejdź do rejestru firm",
+      "waypoints": [],
+      "startPortIndex": 0,
+      "endPortIndex": 0,
+      "_subprocess": true,
+      "_spFlowId": "spf_1"
+    },
+    {
+      "id": 1779282910764,
+      "start": 1779283771379,
+      "end": 1779283498654,
+      "startDir": "right",
+      "endDir": "left",
+      "label": "",
+      "waypoints": [],
+      "startPortIndex": 0,
+      "endPortIndex": 0,
+      "_subprocess": true,
+      "_spFlowId": "spf_1"
+    },
+    {
+      "id": 1779283585250,
+      "start": 1779282891392,
+      "end": 1779283523924,
+      "startDir": "right",
+      "endDir": "left",
+      "label": "Wygeneruj tabelę walut",
+      "waypoints": [],
+      "startPortIndex": 0,
+      "endPortIndex": 0,
+      "_subprocess": true,
+      "_spFlowId": "spf_2"
+    },
+    {
+      "id": 1779283090643,
+      "start": 1779283523924,
+      "end": 1779283780027,
+      "startDir": "right",
+      "endDir": "left",
+      "label": "",
+      "waypoints": [],
+      "startPortIndex": 0,
+      "endPortIndex": 0,
+      "_subprocess": true,
+      "_spFlowId": "spf_2"
+    }
+  ],
+  "userStories": {},
+  "elementColors": {
+    "PROC_001": "#39ff14",
+    "PROC_002": "#00cfff",
+    "PROC_003": "#bf5fff",
+    "PROC_004": "#ff3f3f"
+  },
+  "normalSavedState": null,
+  "bpmnSavedState": null,
+  "bpmnOriginalState": null,
+  "subprocessRegistry": {
+    "PROC_001": {
+      "elements": [
+        {
+          "id": 1779283434677,
+          "csvId": "START_002",
+          "type": "start",
+          "title": "Przejście do rejestru firm",
+          "_userAssigned": "",
+          "_lock": ""
+        },
+        {
+          "id": 1779283198522,
+          "csvId": "ACT_004",
+          "type": "system_action",
+          "title": "Przejście do rejestru firm",
+          "_userAssigned": "",
+          "_lock": ""
+        },
+        {
+          "id": 1779283745980,
+          "csvId": "END_002",
+          "type": "end",
+          "title": "Przejście do rejestru firm",
+          "_userAssigned": "",
+          "_lock": ""
+        },
+        {
+          "id": 1779282798490,
+          "csvId": "START_003",
+          "type": "start",
+          "title": "Generowanie tabeli walut",
+          "_userAssigned": "",
+          "_lock": ""
+        },
+        {
+          "id": 1779283731983,
+          "csvId": "ACT_005",
+          "type": "system_action",
+          "title": "Generowanie tabeli walut",
+          "_userAssigned": "",
+          "_lock": ""
+        },
+        {
+          "id": 1779283394028,
+          "csvId": "END_003",
+          "type": "end",
+          "title": "Generowanie tabeli walut",
+          "_userAssigned": "",
+          "_lock": ""
+        }
+      ],
+      "connections": [
+        {
+          "source_csv_id": "START_002",
+          "target_csv_id": "ACT_004",
+          "label": "Przejdź do rejestru firm",
+          "trigger": "button"
+        },
+        {
+          "source_csv_id": "ACT_004",
+          "target_csv_id": "END_002",
+          "label": "",
+          "trigger": "await"
+        },
+        {
+          "source_csv_id": "START_003",
+          "target_csv_id": "ACT_005",
+          "label": "Wygeneruj tabelę walut",
+          "trigger": "button"
+        },
+        {
+          "source_csv_id": "ACT_005",
+          "target_csv_id": "END_003",
+          "label": "",
+          "trigger": "await"
+        }
+      ]
+    }
+  }
+}
