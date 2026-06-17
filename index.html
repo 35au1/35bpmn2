@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Workflow Generator</title>
+  <link rel="stylesheet" href="../diagram/styles.css">
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="spec-panel.css">
+  <style>
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+    }
+    #status { font-size: 12px; color: #666; white-space: nowrap; }
+
+    .file-btn-group { display: flex; align-items: center; gap: 3px; }
+    .file-selected-icon { font-size: 13px; display: none; color: #4CAF50; }
+    .file-selected-icon.visible { display: inline; }
+
+    .toolbar-sep { width: 1px; height: 20px; background: #444; margin: 0 4px; }
+
+    #load-btn {
+      background: #0d0d0d;
+      color: #a855f7;
+      border: 1px solid #6b3fa0;
+      border-radius: 4px;
+      padding: 5px 14px;
+      cursor: pointer;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    #load-btn:hover { border-color: #a855f7; color: #c084fc; }
+
+    .toolbar-push { flex: 1 1 auto; }
+
+    #story-panel {
+      position: fixed; top: 60px; right: 0; width: 340px;
+      height: calc(100vh - 60px); background: var(--element-bg);
+      border-left: 1px solid var(--element-border); padding: 16px;
+      overflow-y: auto; display: none; flex-direction: column; gap: 12px;
+      z-index: 200; box-shadow: -4px 0 12px rgba(0,0,0,0.15);
+    }
+    #story-panel.open { display: flex; }
+    #story-panel-close {
+      align-self: flex-end; background: none; border: none;
+      font-size: 16px; cursor: pointer; color: var(--text-color); padding: 2px 6px;
+    }
+    #story-panel-content { display: flex; flex-direction: column; gap: 14px; }
+    .story-section { display: flex; flex-direction: column; gap: 4px; }
+    .story-section-label {
+      font-size: 10px; font-weight: bold; text-transform: uppercase;
+      letter-spacing: 0.08em; opacity: 0.5;
+    }
+    .story-section-text { font-size: 13px; line-height: 1.55; }
+    .story-icon { cursor: pointer; opacity: 0.55; transition: opacity 0.15s; }
+    .story-icon:hover { opacity: 1; }
+
+    /* ── AI Chat Panel ── */
+    #ai-chat-panel {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 260px;
+      background: var(--element-bg);
+      border-top: 1px solid var(--element-border);
+      display: flex;
+      flex-direction: column;
+      z-index: 300;
+      transition: height 0.2s;
+    }
+    #ai-chat-panel.collapsed { height: 34px; }
+    #ai-chat-panel.expanded  { height: 520px; }
+    #ai-chat-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 12px; height: 34px; min-height: 34px;
+      border-bottom: 1px solid var(--element-border);
+      cursor: pointer; user-select: none;
+      font-size: 12px; font-weight: bold; opacity: 0.7;
+    }
+    #ai-chat-header:hover { opacity: 1; }
+    #ai-chat-status {
+      font-size: 10px; font-weight: normal; color: #f59e0b;
+      opacity: 0.8; margin-left: 4px;
+    }
+    #ai-chat-toggle { margin-left: auto; font-size: 10px; }
+    #ai-chat-panel.collapsed #ai-chat-body { display: none; }
+    #ai-chat-body {
+      display: flex; flex-direction: row; flex: 1;
+      overflow: hidden;
+    }
+    #ai-prompt-col {
+      display: flex; flex-direction: column;
+      width: 340px; min-width: 220px;
+      border-right: 1px solid var(--element-border);
+      padding: 8px; gap: 4px;
+    }
+    #ai-prompt-label {
+      font-size: 10px; font-weight: bold; text-transform: uppercase;
+      letter-spacing: 0.07em; opacity: 0.4; flex-shrink: 0;
+    }
+    #ai-system-prompt {
+      flex: 1; resize: none;
+      background: #0d0d0d; color: #aaa;
+      border: 1px solid var(--element-border);
+      font-size: 11px; line-height: 1.45;
+      padding: 6px 8px; border-radius: 3px; outline: none;
+      font-family: monospace;
+    }
+    #ai-system-prompt:focus { border-color: #555; }
+    #ai-chat-col {
+      display: flex; flex-direction: column; flex: 1;
+      overflow: hidden; padding: 8px 12px; gap: 6px;
+    }
+    #ai-chat-log {
+      flex: 1; overflow-y: auto; font-size: 12px; line-height: 1.5;
+    }
+    #ai-chat-log .msg { margin-bottom: 3px; }
+    #ai-chat-log .msg.user { color: #7dd3fc; }
+    #ai-chat-log .msg.ai   { color: #86efac; }
+    #ai-chat-log .msg.err  { color: #f87171; }
+    #ai-chat-log .msg.sys  { color: #666; font-style: italic; }
+    #ai-chat-input-row { display: flex; gap: 8px; flex-shrink: 0; }
+    #ai-chat-input {
+      flex: 1; background: #111;
+      border: 1px solid var(--element-border);
+      color: var(--text-color);
+      padding: 5px 10px; font-size: 13px; border-radius: 4px; outline: none;
+    }
+    #ai-chat-input:focus { border-color: #7dd3fc; }
+    #ai-chat-send, #ai-chat-copy, #ai-chat-load {
+      padding: 5px 12px; font-size: 12px;
+      border-radius: 4px; cursor: pointer; white-space: nowrap;
+    }
+    #ai-chat-send { background: #2a1a5c; color: #c4b5fd; border: 1px solid #4a2a8c; }
+    #ai-chat-send:hover { background: #3a2a7a; }
+    #ai-chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+    #ai-chat-copy { background: #1a3a5c; color: #7dd3fc; border: 1px solid #2a5a8c; }
+    #ai-chat-copy:hover { background: #1e4a7a; }
+    #ai-chat-load { background: #1a4a2a; color: #86efac; border: 1px solid #2a7a4a; }
+    #ai-chat-load:hover { background: #1e5a34; }
+    /* Push canvas up so chat panel doesn't cover the bottom of the diagram */
+    #canvas-container { padding-bottom: 34px; }
+
+    /* ── Splash screen ── */
+    #splash {
+      position: fixed; inset: 0; z-index: 99999;
+      background: rgba(0,0,0,0.88);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    #splash-card {
+      background: #0e0e14;
+      border: 1px solid #2a1a4a;
+      border-radius: 12px;
+      padding: 40px 48px;
+      max-width: 560px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 0 60px rgba(107,63,160,0.3);
+    }
+    #splash h1 { font-size: 32px; font-weight: 700; color: #a855f7; margin: 0 0 4px; letter-spacing: 0.04em; }
+    #splash .subtitle { font-size: 12px; color: #555; margin: 0 0 28px; letter-spacing: 0.14em; text-transform: uppercase; }
+    #splash-icons { height: 90px; position: relative; margin-bottom: 24px; }
+    .splash-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.7s ease; }
+    .splash-icon.active { opacity: 1; }
+    #splash ol { text-align: left; margin: 0 0 24px; padding-left: 22px; color: #999; font-size: 13px; line-height: 2; }
+    #splash .dismiss { font-size: 11px; color: #3a3a3a; letter-spacing: 0.08em; }
+  </style>
+</head>
+<body>
+  <!-- Splash screen — click anywhere to dismiss -->
+  <div id="splash">
+    <div id="splash-card">
+      <h1>TLAD</h1>
+      <div class="subtitle">Text · LLM · App Diagram</div>
+
+      <div id="splash-icons">
+        <!-- Step 1: Text description → LLM → CSV files -->
+        <div class="splash-icon active" id="si-0">
+          <svg width="320" height="76" viewBox="0 0 320 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Text doc -->
+            <rect x="4" y="8" width="36" height="44" rx="3" stroke="#555" stroke-width="1.5"/>
+            <line x1="12" y1="20" x2="32" y2="20" stroke="#444" stroke-width="1.2"/>
+            <line x1="12" y1="27" x2="32" y2="27" stroke="#444" stroke-width="1.2"/>
+            <line x1="12" y1="34" x2="26" y2="34" stroke="#444" stroke-width="1.2"/>
+            <text x="22" y="72" text-anchor="middle" font-size="8" fill="#444">Description</text>
+            <!-- Arrow -->
+            <line x1="44" y1="30" x2="76" y2="30" stroke="#333" stroke-width="1.5"/>
+            <polygon points="76,30 70,26 70,34" fill="#333"/>
+            <!-- LLM box -->
+            <rect x="80" y="14" width="60" height="32" rx="4" stroke="#6b3fa0" stroke-width="1.5"/>
+            <text x="110" y="34" text-anchor="middle" font-size="10" fill="#a855f7">LLM</text>
+            <text x="110" y="72" text-anchor="middle" font-size="8" fill="#444">Chat</text>
+            <!-- Arrow -->
+            <line x1="144" y1="30" x2="176" y2="30" stroke="#333" stroke-width="1.5"/>
+            <polygon points="176,30 170,26 170,34" fill="#333"/>
+            <!-- CSV files -->
+            <rect x="180" y="8" width="30" height="20" rx="2" stroke="#555" stroke-width="1.5"/>
+            <text x="195" y="22" text-anchor="middle" font-size="7" fill="#555">CSV</text>
+            <rect x="180" y="32" width="30" height="20" rx="2" stroke="#555" stroke-width="1.5"/>
+            <text x="195" y="46" text-anchor="middle" font-size="7" fill="#555">CSV</text>
+            <text x="195" y="72" text-anchor="middle" font-size="8" fill="#444">Files</text>
+            <!-- Arrow -->
+            <line x1="214" y1="30" x2="246" y2="30" stroke="#333" stroke-width="1.5"/>
+            <polygon points="246,30 240,26 240,34" fill="#333"/>
+            <!-- Upload icon -->
+            <rect x="250" y="14" width="36" height="32" rx="3" stroke="#555" stroke-width="1.5"/>
+            <line x1="268" y1="38" x2="268" y2="24" stroke="#555" stroke-width="1.5"/>
+            <polygon points="268,22 263,28 273,28" fill="#555"/>
+            <text x="268" y="72" text-anchor="middle" font-size="8" fill="#444">Upload</text>
+          </svg>
+        </div>
+
+        <!-- Step 2: CSV files → App → Diagram -->
+        <div class="splash-icon" id="si-1">
+          <svg width="320" height="76" viewBox="0 0 320 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- CSV stack -->
+            <rect x="4" y="8" width="30" height="20" rx="2" stroke="#555" stroke-width="1.5"/>
+            <text x="19" y="22" text-anchor="middle" font-size="7" fill="#555">CSV</text>
+            <rect x="4" y="32" width="30" height="20" rx="2" stroke="#555" stroke-width="1.5"/>
+            <text x="19" y="46" text-anchor="middle" font-size="7" fill="#555">CSV</text>
+            <text x="19" y="72" text-anchor="middle" font-size="8" fill="#444">Files</text>
+            <!-- Arrow -->
+            <line x1="38" y1="30" x2="70" y2="30" stroke="#333" stroke-width="1.5"/>
+            <polygon points="70,30 64,26 64,34" fill="#333"/>
+            <!-- App box -->
+            <rect x="74" y="14" width="60" height="32" rx="4" stroke="#6b3fa0" stroke-width="1.5"/>
+            <text x="104" y="34" text-anchor="middle" font-size="9" fill="#a855f7">TLAD</text>
+            <text x="104" y="72" text-anchor="middle" font-size="8" fill="#444">App</text>
+            <!-- Arrow -->
+            <line x1="138" y1="30" x2="170" y2="30" stroke="#333" stroke-width="1.5"/>
+            <polygon points="170,30 164,26 164,34" fill="#333"/>
+            <!-- Diagram: boxes + arrows -->
+            <rect x="174" y="10" width="28" height="14" rx="2" stroke="#555" stroke-width="1.2"/>
+            <text x="188" y="21" text-anchor="middle" font-size="7" fill="#555">Start</text>
+            <line x1="188" y1="24" x2="188" y2="32" stroke="#444" stroke-width="1.2"/>
+            <polygon points="188,32 185,27 191,27" fill="#444"/>
+            <rect x="174" y="32" width="28" height="14" rx="2" stroke="#555" stroke-width="1.2"/>
+            <text x="188" y="43" text-anchor="middle" font-size="7" fill="#555">Proc</text>
+            <line x1="202" y1="39" x2="218" y2="39" stroke="#444" stroke-width="1.2"/>
+            <polygon points="218,39 213,36 213,42" fill="#444"/>
+            <rect x="218" y="32" width="28" height="14" rx="2" stroke="#555" stroke-width="1.2"/>
+            <text x="232" y="43" text-anchor="middle" font-size="7" fill="#555">End</text>
+            <text x="210" y="72" text-anchor="middle" font-size="8" fill="#444">Diagram</text>
+          </svg>
+        </div>
+
+        <!-- Step 3: Edit description → Change prompt → Updated diagram -->
+        <div class="splash-icon" id="si-2">
+          <svg width="320" height="76" viewBox="0 0 320 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Diagram with edit pencil -->
+            <rect x="4" y="10" width="28" height="14" rx="2" stroke="#555" stroke-width="1.2"/>
+            <text x="18" y="21" text-anchor="middle" font-size="7" fill="#555">Proc</text>
+            <line x1="18" y1="24" x2="18" y2="32" stroke="#444" stroke-width="1.2"/>
+            <polygon points="18,32 15,27 21,27" fill="#444"/>
+            <rect x="4" y="32" width="28" height="14" rx="2" stroke="#6b3fa0" stroke-width="1.2" stroke-dasharray="3,2"/>
+            <text x="18" y="43" text-anchor="middle" font-size="7" fill="#a855f7">New?</text>
+            <!-- Pencil icon -->
+            <line x1="28" y1="10" x2="38" y2="4" stroke="#555" stroke-width="1.5"/>
+            <polygon points="38,4 34,8 30,6" fill="#555"/>
+            <text x="18" y="72" text-anchor="middle" font-size="8" fill="#444">Edit</text>
+            <!-- Arrow -->
+            <line x1="40" y1="30" x2="72" y2="30" stroke="#333" stroke-width="1.5"/>
+            <polygon points="72,30 66,26 66,34" fill="#333"/>
+            <!-- Change prompt box -->
+            <rect x="76" y="14" width="68" height="32" rx="4" stroke="#6b3fa0" stroke-width="1.5"/>
+            <text x="110" y="28" text-anchor="middle" font-size="8" fill="#a855f7">Change</text>
+            <text x="110" y="40" text-anchor="middle" font-size="8" fill="#a855f7">Prompt</text>
+            <text x="110" y="72" text-anchor="middle" font-size="8" fill="#444">+ LLM</text>
+            <!-- Arrow -->
+            <line x1="148" y1="30" x2="180" y2="30" stroke="#333" stroke-width="1.5"/>
+            <polygon points="180,30 174,26 174,34" fill="#333"/>
+            <!-- Updated diagram -->
+            <rect x="184" y="10" width="28" height="14" rx="2" stroke="#555" stroke-width="1.2"/>
+            <text x="198" y="21" text-anchor="middle" font-size="7" fill="#555">Proc</text>
+            <line x1="198" y1="24" x2="198" y2="32" stroke="#444" stroke-width="1.2"/>
+            <polygon points="198,32 195,27 201,27" fill="#444"/>
+            <rect x="184" y="32" width="28" height="14" rx="2" stroke="#555" stroke-width="1.2"/>
+            <text x="198" y="43" text-anchor="middle" font-size="7" fill="#555">New</text>
+            <line x1="212" y1="39" x2="228" y2="39" stroke="#444" stroke-width="1.2"/>
+            <polygon points="228,39 223,36 223,42" fill="#444"/>
+            <rect x="228" y="32" width="28" height="14" rx="2" stroke="#555" stroke-width="1.2"/>
+            <text x="242" y="43" text-anchor="middle" font-size="7" fill="#555">End</text>
+            <text x="216" y="72" text-anchor="middle" font-size="8" fill="#444">Updated</text>
+          </svg>
+        </div>
+      </div>
+
+      <ol>
+        <li>Copy a prompt from the palette and paste it — along with your process description — into any LLM chat.</li>
+        <li>Upload the two generated CSV files (Elements &amp; Connections) into the app.</li>
+        <li>Click <strong>Generate Diagram</strong> to render the workflow.</li>
+        <li>Review, reposition, and edit elements directly on the canvas.</li>
+        <li>Export the final diagram to Visio or save it as JSON.</li>
+        <li>To iterate: use the Change Prompt with your updated CSVs and a description of what to modify, then re-upload and regenerate.</li>
+      </ol>
+
+      <div class="dismiss">Click anywhere to continue</div>
+    </div>
+  </div>
+  <div id="app">
+    <div class="toolbar">
+      <!-- LEFT: file selectors + generate -->
+      <span style="font-size:12px;color:#888;white-space:nowrap">Select files:</span>
+      <div class="file-btn-group">
+        <button onclick="document.getElementById('elements-file').click()">Elements</button>
+        <span class="file-selected-icon" id="elements-icon">✓</span>
+        <input type="file" id="elements-file" accept=".csv" style="display:none">
+      </div>
+      <div class="file-btn-group">
+        <button onclick="document.getElementById('connections-file').click()">Connections</button>
+        <span class="file-selected-icon" id="connections-icon">✓</span>
+        <input type="file" id="connections-file" accept=".csv" style="display:none">
+      </div>
+      <div class="file-btn-group">
+        <button onclick="document.getElementById('userstories-file').click()">User Stories</button>
+        <span class="file-selected-icon" id="userstories-icon">✓</span>
+        <input type="file" id="userstories-file" accept=".csv" style="display:none">
+      </div>
+      <button id="load-btn">Generate Diagram</button>
+      <button id="fix-btn">Fix Overlaps</button>
+
+      <!-- PUSH remaining to right -->
+      <div class="toolbar-push"></div>
+
+      <!-- RIGHT: secondary actions -->
+      <label style="font-size:13px;display:flex;align-items:center;gap:6px"><input type="checkbox" id="bpmn-mode"> BPMN</label>
+      <button id="spec-btn">SPEC</button>
+      <button id="save-btn">Save Diagram</button>
+      <div class="file-btn-group">
+        <button onclick="document.getElementById('diagram-file').click()">Load Diagram</button>
+        <span class="file-selected-icon" id="diagram-icon">✓</span>
+        <input type="file" id="diagram-file" accept=".json" style="display:none">
+      </div>
+      <span id="status"></span>
+
+      <!-- FAR RIGHT: export -->
+      <div class="toolbar-sep"></div>
+      <button id="copy-workflow-prompt-btn" title="Copy workflow generation prompt">Copy Workflow Prompt</button>
+      <button id="copy-userstory-prompt-btn" title="Copy user story generation prompt">Copy Story Prompt</button>
+      <div class="toolbar-sep"></div>
+      <button id="visio-btn">Export to Visio</button>
+    </div>
+    <div id="canvas-container">
+      <svg id="canvas" width="100%" height="100%">
+        <defs>
+          <marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+          </marker>
+          <marker id="bpmn-arrowhead-fwd" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke" />
+          </marker>
+        </defs>
+      </svg>
+    </div>
+
+    <div id="story-panel">
+      <button id="story-panel-close">✕</button>
+      <div id="story-panel-content"></div>
+    </div>
+
+    <!-- SPEC panel — floating popup -->
+    <div id="spec-panel" style="display:none;position:fixed;inset:0;z-index:5000;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);">
+      <div style="background:var(--element-bg);border:1px solid var(--element-border);border-radius:8px;width:800px;max-width:95vw;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,0.5);">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:1px solid var(--element-border);flex-shrink:0;">
+          <strong style="font-size:15px;color:var(--text-color);">SPEC — Workflow Specification</strong>
+          <button id="spec-close" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-color);">&#x2715;</button>
+        </div>
+        <div style="flex:1;overflow-y:auto;overflow-x:hidden;">
+          <div id="spec-content" style="width:100%;padding:20px 32px;box-sizing:border-box;word-break:break-word;overflow-wrap:break-word;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subprocess panel removed — rendered directly on canvas via subprocess-panel.js -->
+    <div class="palette">
+      <div class="palette-item" data-type="start">
+        <span class="palette-icon">⬤</span><span class="palette-label">Start</span>
+      </div>
+      <div class="palette-item" data-type="end">
+        <span class="palette-icon">⏹</span><span class="palette-label">End</span>
+      </div>
+      <div class="palette-item" data-type="process">
+        <span class="palette-icon">▭</span><span class="palette-label">Process</span>
+      </div>
+      <div class="palette-item" data-type="decision-x">
+        <span class="palette-icon">◇</span><span class="palette-label">Decision X</span>
+      </div>
+      <div class="palette-item" data-type="decision-plus">
+        <span class="palette-icon">◈</span><span class="palette-label">Decision +</span>
+      </div>
+      <div class="palette-item" data-type="comment">
+        <span class="palette-icon">💬</span><span class="palette-label">Comment</span>
+      </div>
+      <div class="palette-item" data-type="external">
+        <span class="palette-icon">⬡</span><span class="palette-label">External</span>
+      </div>
+      <div class="palette-item" data-type="arrow">
+        <span class="palette-icon">→</span><span class="palette-label">Arrow</span>
+      </div>
+      <div class="palette-sep"></div>
+      <div class="palette-item palette-item--toggle" id="palette-toggle-labels">
+        <span class="palette-icon">🏷️</span><span class="palette-label">Show Labels</span>
+      </div>
+      <div class="palette-sep"></div>
+      <div class="palette-item palette-item--guide" id="palette-guide">
+        <span class="palette-icon">📖</span><span class="palette-label">Description Guide</span>
+      </div>
+      <div class="palette-item palette-item--prompt" id="palette-copy-workflow">
+        <span class="palette-icon">📋</span><span class="palette-label">Workflow Prompt</span>
+      </div>
+      <div class="palette-item palette-item--prompt" id="palette-copy-story">
+        <span class="palette-icon">📋</span><span class="palette-label">Story Prompt</span>
+      </div>
+      <div class="palette-item palette-item--prompt" id="palette-copy-correction">
+        <span class="palette-icon">✏️</span><span class="palette-label">Correction Prompt</span>
+      </div>
+      <div class="palette-item palette-item--prompt" id="palette-copy-change">
+        <span class="palette-icon">🔄</span><span class="palette-label">Change Prompt</span>
+      </div>
+
+      <!-- Description Guide tooltip panel -->
+      <div id="guide-panel" style="display:none;position:fixed;right:110px;bottom:20px;width:320px;max-height:80vh;overflow-y:auto;background:#111;border:1px solid #6b3fa0;border-radius:6px;padding:14px 16px;z-index:9999;font-size:12px;line-height:1.6;color:#ccc;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <strong style="color:#fff;font-size:13px;">Description Writing Guide</strong>
+          <span id="guide-close" style="cursor:pointer;font-size:16px;color:#888;">✕</span>
+        </div>
+        <p style="color:#a855f7;font-weight:bold;margin:8px 0 4px">Goal</p>
+        <p>Write a plain-language description of your business process. The AI will convert it into a diagram with two tables: <em>Elements</em> (stages) and <em>Connections</em> (arrows between stages).</p>
+
+        <p style="color:#a855f7;font-weight:bold;margin:8px 0 4px">What to include</p>
+        <ul style="margin:0;padding-left:16px;">
+          <li><strong>Who</strong> performs each stage (person or role name)</li>
+          <li><strong>What</strong> they do at that stage</li>
+          <li><strong>What button</strong> they click to move to the next stage</li>
+          <li><strong>Where</strong> the flow goes after each action</li>
+          <li><strong>Conditions</strong> — if the system routes differently based on data (e.g. "if approver is senior manager…")</li>
+          <li><strong>Backward paths</strong> — if a stage can return to a previous one (e.g. "if rejected, goes back to…")</li>
+          <li><strong>The final state</strong> — what the closed/completed form looks like and who sees it</li>
+        </ul>
+
+        <p style="color:#a855f7;font-weight:bold;margin:8px 0 4px">How each element is understood</p>
+        <ul style="margin:0;padding-left:16px;">
+          <li><strong>User stage</strong> — a person actively works on a form and clicks a button to proceed. Must have a named user and a button.</li>
+          <li><strong>System check</strong> — the system automatically evaluates a condition and routes to one of two or more paths. Not a user decision.</li>
+          <li><strong>System action</strong> — the system automatically does something in the background (assign, notify, calculate) with no user involvement.</li>
+          <li><strong>Final closed state</strong> — the last user stage before the process ends. It is still a user stage, not the end itself.</li>
+        </ul>
+
+        <p style="color:#a855f7;font-weight:bold;margin:8px 0 4px">What NOT to include</p>
+        <ul style="margin:0;padding-left:16px;">
+          <li>Form field names or data structures</li>
+          <li>UI layout or visual details</li>
+          <li>Notifications or emails (unless they trigger a stage transition)</li>
+          <li>Internal calculations that don't affect the flow</li>
+          <li>Technical system names or database terms</li>
+        </ul>
+
+        <p style="color:#a855f7;font-weight:bold;margin:8px 0 4px">Tips</p>
+        <ul style="margin:0;padding-left:16px;">
+          <li>One sentence per action is enough</li>
+          <li>Name every person/role — "the manager", "the operator", "the approver"</li>
+          <li>Name every button — "clicks Send", "clicks Approve", "clicks Reject"</li>
+          <li>If something is unclear, use the <em>Correction Prompt</em> to let the AI fill gaps with placeholders first</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!-- AI Chat Panel -->
+  <div id="ai-chat-panel" class="collapsed">
+    <div id="ai-chat-header">
+      🤖 AI Assistant — DeepSeek
+      <span id="ai-chat-status"></span>
+      <span id="ai-chat-toggle">▲</span>
+    </div>
+    <div id="ai-chat-body">
+      <div id="ai-prompt-col">
+        <div id="ai-prompt-label">System Prompt</div>
+        <textarea id="ai-system-prompt" spellcheck="false"></textarea>
+      </div>
+      <div id="ai-chat-col">
+        <div id="ai-chat-log"></div>
+        <div id="ai-chat-input-row">
+          <input id="ai-chat-input" type="text" placeholder="Describe what to change… then click Send or Copy Prompt" />
+          <button id="ai-chat-send">⚡ Send</button>
+          <button id="ai-chat-copy">📋 Copy Prompt</button>
+          <button id="ai-chat-load">⬇ Load Response</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="minizip.js"></script>
+  <script src="../diagram/app.js"></script>
+  <script src="overlap-fixer.js"></script>
+  <script src="subprocess-panel.js"></script>
+  <script src="visio-export2.js"></script>
+  <script src="prompts.js"></script>
+  <script src="spec-panel.js"></script>
+  <script src="generator.js"></script>
+  <script src="ai-chat.js"></script>
+  <script>
+    // Show checkmark icon when a file is selected
+    [['elements-file','elements-icon'],
+     ['connections-file','connections-icon'],
+     ['userstories-file','userstories-icon'],
+     ['diagram-file','diagram-icon']
+    ].forEach(([inputId, iconId]) => {
+      document.getElementById(inputId).addEventListener('change', function() {
+        const icon = document.getElementById(iconId);
+        if (this.files.length > 0) icon.classList.add('visible');
+        else icon.classList.remove('visible');
+      });
+    });
+
+    // Prompt constants loaded from prompts.js
+    const WORKFLOW_PROMPT  = window.WORKFLOW_PROMPT;
+    const USERSTORY_PROMPT = window.USERSTORY_PROMPT;
+    const CHANGE_PROMPT    = window.CHANGE_PROMPT;
+
+    function copyToClipboard(text, el) {
+      const orig = el ? el.textContent : '';
+      const done = () => {
+        if (el) { el.textContent = '✓ Copied!'; setTimeout(() => el.textContent = orig, 2000); }
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(() => fallback(text, done));
+      } else {
+        fallback(text, done);
+      }
+    }
+    function fallback(text, done) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      try { document.execCommand('copy'); done(); } catch(e) {}
+      document.body.removeChild(ta);
+    }
+
+    document.getElementById('copy-workflow-prompt-btn').addEventListener('click', function() {
+      copyToClipboard(WORKFLOW_PROMPT, this);
+    });
+    document.getElementById('copy-userstory-prompt-btn').addEventListener('click', function() {
+      copyToClipboard(USERSTORY_PROMPT, this);
+    });
+    // Palette prompt buttons
+    document.getElementById('palette-copy-workflow').addEventListener('click', function() {
+      copyToClipboard(WORKFLOW_PROMPT, this.querySelector('.palette-label'));
+    });
+    document.getElementById('palette-copy-story').addEventListener('click', function() {
+      copyToClipboard(USERSTORY_PROMPT, this.querySelector('.palette-label'));
+    });
+    document.getElementById('palette-copy-correction').addEventListener('click', function() {
+      copyToClipboard(CORRECTION_PROMPT, this.querySelector('.palette-label'));
+    });
+    document.getElementById('palette-copy-change').addEventListener('click', function() {
+      copyToClipboard(CHANGE_PROMPT, this.querySelector('.palette-label'));
+    });
+    // ── Splash screen ──────────────────────────────────────────────────────────
+    (function() {
+      const splash = document.getElementById('splash');
+      const icons  = [document.getElementById('si-0'), document.getElementById('si-1'), document.getElementById('si-2')];
+      let cur = 0;
+      const cycle = setInterval(() => {
+        icons[cur].classList.remove('active');
+        cur = (cur + 1) % icons.length;
+        icons[cur].classList.add('active');
+      }, 2000);
+      splash.addEventListener('click', () => {
+        clearInterval(cycle);
+        splash.style.transition = 'opacity 0.4s';
+        splash.style.opacity = '0';
+        setTimeout(() => splash.remove(), 420);
+      });
+    })();
+
+    document.getElementById('spec-btn').addEventListener('click', toggleSpecPanel);
+    document.getElementById('spec-close').addEventListener('click', toggleSpecPanel);
+
+    document.getElementById('palette-guide').addEventListener('click', function() {
+      const panel = document.getElementById('guide-panel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    });
+    document.getElementById('guide-close').addEventListener('click', function() {
+      document.getElementById('guide-panel').style.display = 'none';
+    });
+    // Toggle arrow label visibility
+    document.getElementById('palette-toggle-labels').addEventListener('click', function() {
+      const on = document.body.classList.toggle('show-labels');
+      this.classList.toggle('active', on);
+      this.querySelector('.palette-label').textContent = on ? 'Hide Labels' : 'Show Labels';
+    });
+  </script>
+</body>
+</html>
